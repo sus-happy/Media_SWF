@@ -3,8 +3,6 @@ class Media_SWF_Dumper
 {
   public static function dumpAll($headers, $tags)
   {
-    $tagTypes    = include(dirname(__FILE__).'/Tag/TagTypes.php');
-
     /* SWF Header */
     echo 'Signature: '.$headers['Signature'].PHP_EOL;
     echo 'Version: '.$headers['Version'].PHP_EOL;
@@ -22,7 +20,7 @@ class Media_SWF_Dumper
     foreach ($tags as $tag) {
       $code = $tag['Code'];
       $length = $tag['Length'];
-      echo "\t{$tagTypes[$code]}($code)  Length: $length".PHP_EOL;
+      echo sprintf( "\t%s(%s)  Length: %s", Media_SWF_Tag::name( $code ), $code, $length ).PHP_EOL;
       if (isset($tag['Object']))
       {
         $tag['Object']->dump("\t\t");
@@ -55,11 +53,10 @@ class Media_SWF_Dumper
 
   public static function dumpDoAction($tags, $indent = "\t\t")
   {
-    $actionCodes = include(dirname(__FILE__).'/Tag/ActionCodes.php');
     foreach ($tags as $tag)
     {
       $code = $tag['ActionCode'];
-      echo $indent . "{$actionCodes[$code]}($code) Length: $length";
+      printf( "%s%s(%d)", $indent, Media_SWF_Tag_DoAction::name( $code ), $code );
       if (isset($tag['Content'])) {
         $length = $tag['Length'];
         $content= $tag['Content'];
@@ -71,14 +68,13 @@ class Media_SWF_Dumper
 
   public static function dumpDefineSprite($fields, $indent = "\t\t")
   {
-    $tagTypes    = include(dirname(__FILE__).'/Tag/TagTypes.php');
     echo $indent . "CharacterId: ".$fields['CharacterId'].PHP_EOL;
     echo $indent . "FrameCount: ".$fields['FrameCount'].PHP_EOL;
     foreach ($fields['ControlTags'] as $tag)
     {
       $code = $tag['Code'];
       $length = $tag['Length'];
-      echo $indent . "\t{$tagTypes[$code]}($code)  Length: $length".PHP_EOL;
+      echo $indent . sprintf( "\t%s(%s)  Length: %s", Media_SWF_Tag::name( $code ), $code, $length ).PHP_EOL;
       if (isset($tag['Object']))
       {
         $tag['Object']->dump($indent . "\t\t");
@@ -105,7 +101,7 @@ class Media_SWF_Dumper
           if (is_array($v)) {
             echo PHP_EOL;
             foreach ($v as $l) {
-              echo $indent . "\t\t\t". json_encode($l).PHP_EOL; 
+              echo $indent . "\t\t\t". json_encode($l).PHP_EOL;
             }
           } else {
             echo $v . PHP_EOL;

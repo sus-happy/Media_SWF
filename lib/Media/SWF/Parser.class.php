@@ -4,12 +4,12 @@ require_once 'IO/Bit.php';
  * Media_SWF_Parser.
  *
  * SwfFormatパーサ
- * 
+ *
  * @uses IO_Bit
- * @package   Media_SWF 
+ * @package   Media_SWF
  * @version   $Id$
  * @copyright Copyright (C) 2010 KAYAC Inc.
- * @author    Kensaku Araga <araga-kensaku@kayac.com> 
+ * @author    Kensaku Araga <araga-kensaku@kayac.com>
  * @see http://hkpr.info/flash/swf/index.php?Flash%20SWF%20Spec
  * @see http://www.adobe.com/devnet/swf/pdf/swf_file_format_spec_v10.pdf
  * @via http://openpear.org/package/IO_SWF (@yoya)
@@ -29,18 +29,18 @@ class Media_SWF_Parser extends IO_Bit
     return $data;
   }
 
-  public function getFIBits($width) 
+  public function getFIBits($width)
   {
     // TODO 正しい実装(必要ならば)
     return $this->getUIBits($width);
   }
-    
+
   public function getString()
   {
     $string = "";
     while (($byte = $this->getUI8()) !== 0x00) {
-      $string .= chr($byte); 
-    } 
+      $string .= chr($byte);
+    }
     return $string;
   }
 
@@ -182,19 +182,19 @@ class Media_SWF_Parser extends IO_Bit
     $tag['Code']  = $code;
     $tag['Length'] = $length;
     switch ($code) {
-      case 6:  // DefineBits
-      case 21: // DefineBitsJPEG2
-      case 35: // DefineBitsJPEG3
-      case 20: // DefineBitsLossless
-      case 36: // DefineBitsLossless2
-      case 46: // DefineMorphShape
-      case 2:  // DefineShape (ShapeId)
-      case 22: // DefineShape2 (ShapeId)
-      case 32: // DefineShape3 (ShapeId)
-      case 11: // DefineText
-      case 33: // DefineText
-      case 37: // DefineTextEdit
-      case 39: // DefineSprite (SpriteId)
+      case Media_SWF_Tag::DEFINE_BITS:  // DefineBits
+      case Media_SWF_Tag::DEFINE_BITS_JPEG2: // DefineBitsJPEG2
+      case Media_SWF_Tag::DEFINE_BITS_JPEG3: // DefineBitsJPEG3
+      case Media_SWF_Tag::DEFINE_BITS_LOSSLESS: // DefineBitsLossless
+      case Media_SWF_Tag::DEFINE_BITS_LOSSLESS2: // DefineBitsLossless2
+      case Media_SWF_Tag::DEFINE_MORPH_SHAPE: // DefineMorphShape
+      case Media_SWF_Tag::DEFINE_SHAPE:  // DefineShape (ShapeId)
+      case Media_SWF_Tag::DEFINE_SHAPE2: // DefineShape2 (ShapeId)
+      case Media_SWF_Tag::DEFINE_SHAPE3: // DefineShape3 (ShapeId)
+      case Media_SWF_Tag::DEFINE_TEXT: // DefineText
+      case Media_SWF_Tag::DEFINE_TEXT2: // DefineText
+      case Media_SWF_Tag::DEFINE_EDIT_TEXT: // DefineTextEdit
+      case Media_SWF_Tag::DEFINE_SPRITE: // DefineSprite (SpriteId)
         $tag['CharacterId'] = $this->getUI16LE();
         $length -= 2;
         break;

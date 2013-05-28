@@ -1,14 +1,14 @@
-<?php 
+<?php
 
 /**
- * Media_SWF_Builder.  
- * 
+ * Media_SWF_Builder.
+ *
  * IO_SWF_Editorから派生
- * 
- * @package   Media_SWF 
+ *
+ * @package   Media_SWF
  * @version   $Id$
  * @copyright Copyright (C) 2010 KAYAC Inc.
- * @author    Kensaku Araga <araga-kensaku@kayac.com> 
+ * @author    Kensaku Araga <araga-kensaku@kayac.com>
  * @see IO_Bit http://openpear.org/package/IO_Bit
  * @see IO_SWF http://openpear.org/package/IO_SWF
  * @todo Mingも評価
@@ -20,7 +20,7 @@ class Media_SWF_Builder extends Media_SWF
     $_spriteNames = array(),
     $_maxCharacterId = 0;
 
-  public function build() 
+  public function build()
   {
     foreach ($this->_tags as &$tag) {
       if (isset($tag['Object'])) {
@@ -125,7 +125,7 @@ class Media_SWF_Builder extends Media_SWF
     if ($spriteName2 == null) $spriteName2 = $spriteName;
     $oldSpriteId = $this->getCharacterIdBySpriteName($spriteName);
     $newSpriteId = $swfObj->getCharacterIdBySpriteName($spriteName2);
-   
+
     // 不要タグの削除
     $removeCharacterIds = $this->getPlacedCharactersRecursiveByCharacterId($oldSpriteId);
     foreach ($removeCharacterIds as $characterId) {
@@ -142,12 +142,12 @@ class Media_SWF_Builder extends Media_SWF
     $placedCharacterIds = $swfObj->getPlacedCharactersRecursiveByCharacterId($newSpriteId);
     sort($placedCharacterIds);
 
-    $newCharacterIds = array(); 
+    $newCharacterIds = array();
     $count = count($placedCharacterIds);
     for ($i = 0; $i < $count; $i++) {
       $newCharacterIds[] = $this->getUniqueCharacterId();
     }
-    
+
     $characterIdsMap = array_combine($placedCharacterIds, $newCharacterIds);
 
     $addTags = array();
@@ -156,15 +156,15 @@ class Media_SWF_Builder extends Media_SWF
       $tag = $swfObj->getTagByCharacterId($characterId);
 
       switch ($tag['Code']) {
-      case 39:
+      case Media_SWF_Tag::DEFINE_SPRITE:
         if (!isset($tag['Object'])) {
           $tag['Object'] = new Media_SWF_Tag_DefineSprite($tag);
         }
         $tag['Object']->replacePlacedCharacterIds($characterIdsMap);
         break;
-      case 2:  // DefineShape (ShapeId)
-      case 22: // DefineShape2 (ShapeId)
-      case 32: // DefineShape3 (ShapeId)
+      case Media_SWF_Tag::DEFINE_SHAPE:
+      case Media_SWF_Tag::DEFINE_SHAPE2:
+      case Media_SWF_Tag::DEFINE_SHAPE3:
         if (!isset($tag['Object'])) {
           $tag['Object'] = new Media_SWF_Tag_DefineShape($tag);
         }
@@ -212,15 +212,15 @@ class Media_SWF_Builder extends Media_SWF
   }
 
   /**
-   * Characterデータを解析する手始めを行う.  
-   * 
-   * それなりに負荷のかかる処理なので不要の場合はお勧めしません. 
+   * Characterデータを解析する手始めを行う.
+   *
+   * それなりに負荷のかかる処理なので不要の場合はお勧めしません.
    * また、CharacterIdのみが必要の場合はsetCharacterId()を利用してください
-   * 
+   *
    * @access public
    * @return void
    */
-  public function loadCharacterMap() 
+  public function loadCharacterMap()
   {
     $placedCharacters = array(0 => array());
     $spriteNames = array(0 => array());

@@ -1,45 +1,45 @@
 <?php
 /**
- * Media_SWF 
- * 
+ * Media_SWF
+ *
  * IO_SWFからMedia_SWFにして用途にあわせて拡張した
  *
- * @package   Media_SWF 
+ * @package   Media_SWF
  * @version   $Id$
  * @copyright Copyright (C) 2010 KAYAC Inc.
- * @author    Kensaku Araga <araga-kensaku@kayac.com> 
+ * @author    Kensaku Araga <araga-kensaku@kayac.com>
  * @via http://openpear.org/package/IO_SWF (@yoya)
  */
 class Media_SWF // extends IO_SWF
 {
-  protected 
+  protected
     $_headers = array(),
     $_tags    = array();
 
-  public function parse($swfdata) 
+  public function parse($swfdata)
   {
     $reader = new Media_SWF_Parser();
     $reader->input($swfdata);
 
     /* SWF Header */
     $this->_headers = $reader->getSWFHeader();
-    
+
     /* SWF Tags */
     while (true) {
       $tag = $reader->getTag();
       $this->_tags[] = $tag;
-      if ($tag['Code'] == 0) { // END Tag
+      if ($tag['Code'] == Media_SWF_Tag::END) { // END Tag
         break;
       }
     }
     return true;
   }
-  
-  public function build() 
+
+  public function build()
   {
     $writer = new Media_SWF_Parser();
     $writer->putSWFHeader($this->_headers);
-    
+
     /* SWF Tags */
     foreach ($this->_tags as $tag) {
       $writer->putTag($tag);
@@ -53,7 +53,7 @@ class Media_SWF // extends IO_SWF
   public function getFirstAction()
   {
     foreach ($this->_tags as &$tag) {
-      if ($tag['Code'] === 12) {
+      if ($tag['Code'] === Media_SWF_Tag::DO_ACTION) {
         if (!isset($tag['Object'])) {
           $tag['Object'] = new Media_SWF_Tag_DoAction($tag);
         }
@@ -63,7 +63,7 @@ class Media_SWF // extends IO_SWF
     throw new Exception('Not found Action');
   }
 
-  public function getTagByCharacterId($characterId) 
+  public function getTagByCharacterId($characterId)
   {
     foreach ($this->_tags as &$tag) {
       if (isset($tag['CharacterId']) && $tag['CharacterId'] === $characterId) {
@@ -73,7 +73,7 @@ class Media_SWF // extends IO_SWF
     return null;
   }
 
-  public function setTagByCharacterId($characterId, $newTag) 
+  public function setTagByCharacterId($characterId, $newTag)
   {
     foreach ($this->_tags as $i => $tag) {
       if (isset($tag['CharacterId']) && $tag['CharacterId'] === $characterId) {
@@ -85,8 +85,8 @@ class Media_SWF // extends IO_SWF
   public function getDefineSpriteByCharacterId($characterId)
   {
     $tag = $this->getTagByCharacterId($characterId);
-    if ($tag['Code'] !== 39) {
-      return null; 
+    if ($tag['Code'] !== Media_SWF_Tag::DEFINE_SPRITE) {
+      return null;
     }
     if (!isset($tag['Object'])) {
       $tag['Object'] = new Media_SWF_Tag_DefineSprite($tag);
@@ -98,7 +98,7 @@ class Media_SWF // extends IO_SWF
   {
     $tag = $this->getTagByCharacterId($characterId);
     if (!in_array($tag['Code'], array(2, 22, 32))) {
-      return null; 
+      return null;
     }
     if (!isset($tag['Object'])) {
       $tag['Object'] = new Media_SWF_Tag_DefineShape($tag);
